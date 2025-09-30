@@ -1,0 +1,7 @@
+{
+	"shader": "shaders/generic",
+	"params":
+	{
+		"testParam": 10.24
+	}
+}
