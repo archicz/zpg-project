@@ -3,7 +3,6 @@
 #pragma once
 
 #include <memory>
-#include <glad/glad.h>
 #include "model.h"
 #include "materialsystem.h"
 #include "transform.h"

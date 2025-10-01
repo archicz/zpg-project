@@ -1,15 +1,9 @@
 #include "scene.h"
 
-Scenes::Scenes()
+Scene::Scene()
 {
 }
 
-Scenes::~Scenes()
+Scene::~Scene()
 {
-}
-
-Scenes& Scenes::GetInstance()
-{
-	static Scenes instance;
-	return instance;
 }

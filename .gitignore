@@ -2,3 +2,5 @@
 build
 bin/log.txt
 bin/zpg_project
+imgui/src/*
+imgui/include/*

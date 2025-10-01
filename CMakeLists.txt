@@ -20,14 +20,19 @@ add_subdirectory(nlohmann_json)
 # PLOG
 add_subdirectory(plog)
 
+# ImGui
+add_subdirectory(imgui)
+
 add_executable(zpg_project
 	src/main.cpp
 	src/application.cpp
 	src/shader.cpp
 	src/shaderprogram.cpp
-	src/model.cpp
+	src/mesh.cpp
 	src/materialsystem.cpp
+	src/renderer.cpp
 	src/drawableobject.cpp
+	src/camera.cpp
 	src/transform.cpp
 	src/scene.cpp
 )
@@ -39,4 +44,5 @@ target_link_libraries(zpg_project PRIVATE
 	glm::glm
 	nlohmann_json::nlohmann_json
 	plog::plog
+	ImGui
 )

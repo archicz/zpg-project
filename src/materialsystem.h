@@ -31,10 +31,10 @@ private:
 	MaterialSystem();
 	~MaterialSystem();
 public:
-    MaterialSystem(const MaterialSystem& other) = delete;
-    MaterialSystem& operator=(const MaterialSystem& other) = delete;
-    MaterialSystem(MaterialSystem&& other) = delete;
-    MaterialSystem& operator=(MaterialSystem&& other) = delete;
+	MaterialSystem(const MaterialSystem& other) = delete;
+	MaterialSystem& operator=(const MaterialSystem& other) = delete;
+	MaterialSystem(MaterialSystem&& other) = delete;
+	MaterialSystem& operator=(MaterialSystem&& other) = delete;
 public:
 	static MaterialSystem& GetInstance();
 public:

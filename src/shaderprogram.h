@@ -17,6 +17,11 @@ public:
 	ShaderProgram(ShaderPtr vertexShader, ShaderPtr fragmentShader);
 	~ShaderProgram();
 public:
+	ShaderProgram(const ShaderProgram&) = delete;
+	ShaderProgram& operator=(const ShaderProgram&) = delete;
+	ShaderProgram(ShaderProgram&& other) noexcept = delete;
+	Shader& operator=(Shader&& other) noexcept = delete;
+public:
 	void Destroy();
 	bool IsValid() const;
 	bool Use();

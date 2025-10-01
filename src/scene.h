@@ -5,13 +5,11 @@
 #include <vector>
 #include "drawableobject.h"
 
-class Scenes
+class Scene
 {
 private:
-	Scenes();
-	~Scenes();
-public:
-	static Scenes& GetInstance();
+	Scene();
+	~Scene();
 private:
 	std::vector<DrawableObject> objects;
 };

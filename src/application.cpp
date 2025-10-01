@@ -4,8 +4,6 @@
 #include <plog/Initializers/ConsoleInitializer.h>
 #include <plog/Initializers/RollingFileInitializer.h>
 #include "application.h"
-#include "shaderprogram.h"
-#include "model.h"
 
 Application::Application(const uint32_t _width, const uint32_t _height, const std::string& _title):
 	width(_width), height(_height), title(_title)
