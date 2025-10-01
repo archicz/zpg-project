@@ -1,5 +1,5 @@
 {
-	"shader": "shaders/generic",
+	"shader": "generic",
 	"params":
 	{
 		"testParam": 10.24

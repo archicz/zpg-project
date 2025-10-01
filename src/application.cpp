@@ -60,6 +60,8 @@ bool Application::Initialize()
 	ImGui::StyleColorsDark();
 
 	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = nullptr;
+	io.LogFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	ImGui_ImplSDL2_InitForOpenGL(window, glContext);
@@ -132,6 +134,9 @@ void Application::Draw()
 
 void Application::PostDraw()
 {
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	Renderer::GetInstance().End();
 
 	ImGui::Render();
