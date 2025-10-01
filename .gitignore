@@ -1,6 +1,7 @@
 .vscode
 build
 bin/log.txt
+bin/imgui.ini
 bin/zpg_project
 imgui/src/*
 imgui/include/*

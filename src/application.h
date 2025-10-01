@@ -4,8 +4,6 @@
 
 #include <string>
 #include <SDL2/SDL.h>
-#include <glad/glad.h>
-#include <unordered_map>
 
 class Application
 {
@@ -15,12 +13,10 @@ public:
 public:
 	bool Initialize();
 	void Run();
-	void Close();
-	bool CreateAssets();
+	void Destroy();
 private:
-	void DestroyAssets();
-private:
-	void ProcessEvents(SDL_Event* ev);
+	void ProcessEvent(SDL_Event* ev);
+public:
 	void PreDraw();
 	void Draw();
 	void PostDraw();

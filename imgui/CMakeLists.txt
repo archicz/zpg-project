@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 project(imgui)
 
 add_library(imgui
@@ -7,8 +7,9 @@ add_library(imgui
 	src/imgui_draw.cpp
 	src/imgui_tables.cpp
 	src/imgui_widgets.cpp
-	src/imgui_impl_sdl2.cpp
-	src/imgui_impl_opengl3.cpp
+	src/backends/imgui_impl_sdl2.cpp
+	src/backends/imgui_impl_opengl3.cpp
 )
 
-target_include_directories(imgui PUBLIC include)
+target_include_directories(imgui PUBLIC src)
+target_link_libraries(imgui PUBLIC SDL2::SDL2)

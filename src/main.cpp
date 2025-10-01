@@ -16,13 +16,7 @@ int main()
 		PLOGE << "Application::Initialize() failed";
 		return EXIT_FAILURE;
 	}
-
-	if (!app->CreateAssets())
-	{
-		PLOGE << "Application::CreateAssets() failed";
-		return EXIT_FAILURE;
-	}
-
+	
 	app->Run();
 
 	return EXIT_SUCCESS;

@@ -1,7 +1,7 @@
 #include "drawableobject.h"
 
-DrawableObject::DrawableObject(MaterialPtr mat, ModelPtr mdl):
-	material(mat), model(mdl)
+DrawableObject::DrawableObject(MaterialPtr mat, MeshPtr msh):
+	material(mat), mesh(msh)
 {
 }
 
@@ -13,7 +13,7 @@ void DrawableObject::Draw()
 {
 	// shaderProgram->Use();
 	// shaderProgram->SetMat4("modelMat", modelMat.GetMat());
-	model->Draw();
+	mesh->Draw();
 }
 
 Transform& DrawableObject::GetTransform()

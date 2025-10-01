@@ -3,24 +3,24 @@
 #pragma once
 
 #include <memory>
-#include "model.h"
-#include "materialsystem.h"
+#include "mesh.h"
+#include "materials.h"
 #include "transform.h"
 
 using MaterialPtr = std::shared_ptr<Material>;
-using ModelPtr = std::shared_ptr<Model>;
+using MeshPtr = std::shared_ptr<Mesh>;
 
 class DrawableObject
 {
 public:
-	DrawableObject(MaterialPtr mat, ModelPtr mdl);
+	DrawableObject(MaterialPtr mat, MeshPtr msh);
 	~DrawableObject();
 public:
 	void Draw();
 public:
 	Transform& GetTransform();
 private:
-	ModelPtr model;
+	MeshPtr mesh;
 	Transform modelMat;
 	MaterialPtr material;
 };

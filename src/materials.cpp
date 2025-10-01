@@ -1,5 +1,5 @@
 #include <plog/Log.h>
-#include "materialsystem.h"
+#include "materials.h"
 
 Material::Material(ShaderProgramPtr _shaderProgram):
 	shaderProgram(_shaderProgram)
@@ -21,27 +21,31 @@ bool Material::Bind()
 }
 
 
-MaterialSystem::MaterialSystem()
+Materials::Materials()
 {
 }
 
-MaterialSystem::~MaterialSystem()
+Materials::~Materials()
 {
 }
 
-MaterialSystem& MaterialSystem::GetInstance()
+Materials& Materials::GetInstance()
 {
-	static MaterialSystem instance;
+	static Materials instance;
 	return instance;
 }
 
-bool MaterialSystem::HasShader(const std::string& name)
+void Materials::Destroy()
+{
+}
+
+bool Materials::HasShader(const std::string& name)
 {
 	auto it = shaderPrograms.find(name);
 	return (it != shaderPrograms.end());
 }
 
-bool MaterialSystem::AddShader(const std::string& name, std::string& vtxSource, std::string& fragSrc)
+bool Materials::AddShader(const std::string& name, std::string& vtxSource, std::string& fragSrc)
 {
 	PLOGI << "Adding shader '" << name << "'";
 
@@ -68,7 +72,7 @@ bool MaterialSystem::AddShader(const std::string& name, std::string& vtxSource, 
 	return true;
 }
 
-std::optional<ShaderProgramPtr> MaterialSystem::GetShader(const std::string& name)
+std::optional<ShaderProgramPtr> Materials::GetShader(const std::string& name)
 {
 	auto it = shaderPrograms.find(name); 
 	if (it == shaderPrograms.end())
@@ -79,13 +83,13 @@ std::optional<ShaderProgramPtr> MaterialSystem::GetShader(const std::string& nam
 	return (*it).second;
 }
 
-bool MaterialSystem::HasMaterial(const std::string& name)
+bool Materials::HasMaterial(const std::string& name)
 {
 	auto it = materials.find(name);
 	return (it != materials.end());
 }
 
-bool MaterialSystem::AddMaterial(const std::string& name, const std::string& shaderName)
+bool Materials::AddMaterial(const std::string& name, const std::string& shaderName)
 {
 	PLOGI << "Adding material '" << name << "'";
 
@@ -106,7 +110,7 @@ bool MaterialSystem::AddMaterial(const std::string& name, const std::string& sha
 	return true;
 }
 
-std::optional<MaterialPtr> MaterialSystem::GetMaterial(const std::string& name)
+std::optional<MaterialPtr> Materials::GetMaterial(const std::string& name)
 {
 	auto it = materials.find(name); 
 	if (it == materials.end())

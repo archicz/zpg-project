@@ -1,5 +1,5 @@
-#ifndef MATERIALSYSTEM_H
-#define MATERIALSYSTEM_H
+#ifndef MATERIALS_H
+#define MATERIALS_H
 #pragma once
 
 #include <unordered_map>
@@ -25,18 +25,20 @@ private:
 
 using MaterialPtr = std::shared_ptr<Material>;
 
-class MaterialSystem
+class Materials
 {
 private:
-	MaterialSystem();
-	~MaterialSystem();
+	Materials();
+	~Materials();
 public:
-	MaterialSystem(const MaterialSystem& other) = delete;
-	MaterialSystem& operator=(const MaterialSystem& other) = delete;
-	MaterialSystem(MaterialSystem&& other) = delete;
-	MaterialSystem& operator=(MaterialSystem&& other) = delete;
+	Materials(const Materials& other) = delete;
+	Materials& operator=(const Materials& other) = delete;
+	Materials(Materials&& other) = delete;
+	Materials& operator=(Materials&& other) = delete;
 public:
-	static MaterialSystem& GetInstance();
+	static Materials& GetInstance();
+public:
+	void Destroy();
 public:
 	bool HasShader(const std::string& name);
 	bool AddShader(const std::string& name, std::string& vtxSource, std::string& fragSource);

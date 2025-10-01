@@ -1,9 +1,13 @@
 #include <iostream>
+#include <glad/glad.h>
 #include <plog/Log.h>
 #include <plog/Formatters/TxtFormatter.h>
 #include <plog/Initializers/ConsoleInitializer.h>
 #include <plog/Initializers/RollingFileInitializer.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_sdl2.h>
 #include "application.h"
+#include "renderer.h"
 
 Application::Application(const uint32_t _width, const uint32_t _height, const std::string& _title):
 	width(_width), height(_height), title(_title)
@@ -12,6 +16,7 @@ Application::Application(const uint32_t _width, const uint32_t _height, const st
 
 Application::~Application()
 {
+	Destroy();
 }
 
 bool Application::Initialize()
@@ -51,6 +56,15 @@ bool Application::Initialize()
 	PLOGI << "Vendor: " << glGetString(GL_VENDOR);
 	PLOGI << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+	ImGui_ImplOpenGL3_Init();
+
 	return true;
 }
 
@@ -64,7 +78,7 @@ void Application::Run()
 	{
 		while (SDL_PollEvent(&ev))
 		{
-			ProcessEvents(&ev);
+			ProcessEvent(&ev);
 		}
 
 		PreDraw();
@@ -75,40 +89,41 @@ void Application::Run()
 	}
 }
 
-void Application::Close()
+void Application::Destroy()
 {
 	running = false;
 
-	DestroyAssets();
-	
+	Renderer::GetInstance().Destroy();
+	Materials::GetInstance().Destroy();
+
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
 
-bool Application::CreateAssets()
-{
-	return true;
-}
-
-void Application::DestroyAssets()
-{
-}
-
-void Application::ProcessEvents(SDL_Event *ev)
+void Application::ProcessEvent(SDL_Event* ev)
 {
 	if (ev->type == SDL_QUIT)
 	{
-		Close();
+		running = false;
+		return;
 	}
 
 	if (ev->type == SDL_KEYDOWN && ev->key.keysym.sym == SDLK_ESCAPE)
 	{
-		Close();
+		running = false;
+		return;
 	}
+
+	ImGui_ImplSDL2_ProcessEvent(ev);
 }
 
 void Application::PreDraw()
 {
+	Renderer::GetInstance().Begin();
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
 }
 
 void Application::Draw()
@@ -117,4 +132,8 @@ void Application::Draw()
 
 void Application::PostDraw()
 {
+	Renderer::GetInstance().End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
