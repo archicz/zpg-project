@@ -4,13 +4,13 @@
 Mesh::Mesh(const std::vector<Vertex>& _vertices, const std::vector<GLuint>& _indices):
 	vertices(std::move(_vertices)), indices(std::move(_indices))
 {
-	glGenBuffers(1, &eboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &vboId);
+	glBindBuffer(GL_ARRAY_BUFFER, vboId);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &eboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
 	BuildVAO();
 }
@@ -56,6 +56,20 @@ void Mesh::BuildVAO()
 		glVertexAttribPointer(i, attr.numElements, attr.dataType, GL_FALSE, sizeof(Vertex), static_cast<GLvoid*>(vertexPtr));
 
 		vertexPtr += attr.elementSize * attr.numElements;
+	}
+}
+
+void Mesh::Destroy()
+{
+	if (IsValid())
+	{
+		glDeleteVertexArrays(1, &vaoId);
+		glDeleteBuffers(1, &vboId);
+
+		if (eboId != 0)
+		{
+			glDeleteBuffers(1, &eboId);
+		}
 	}
 }
 

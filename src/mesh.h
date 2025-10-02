@@ -22,6 +22,7 @@ public:
 private:
 	void BuildVAO();
 public:
+	void Destroy();
 	bool IsValid() const;
 	void Draw() const;
 private:

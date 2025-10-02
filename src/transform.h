@@ -14,6 +14,8 @@ public:
 	virtual glm::mat4 GetMat() const = 0;
 };
 
+using TransformationPtr = std::shared_ptr<ITransformation>;
+
 // Translate
 class TranslateTransform : public ITransformation 
 {
@@ -50,8 +52,6 @@ private:
 class Transform : public ITransformation
 {
 public:
-	using TransformationPtr = std::shared_ptr<ITransformation>;
-public:
 	Transform() = default;
 	~Transform() = default;
 public:
@@ -61,6 +61,7 @@ public:
 	Transform& operator=(Transform&&) = default;
 public:
 	void AddChild(TransformationPtr child);
+	void Clear();
 public:
 	void Translate(glm::vec3 translate);
 	void Rotate(float pitch, float yaw, float roll);
