@@ -5,13 +5,13 @@
 #include <vector>
 #include "drawableobject.h"
 
-class Scene
-{
-private:
-	Scene();
-	~Scene();
-private:
-	std::vector<DrawableObject> objects;
-};
+// class Scene
+// {
+// private:
+// 	Scene();
+// 	~Scene();
+// private:
+// 	std::vector<DrawableObject> objects;
+// };
 
 #endif

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <glad/glad.h>
 #include "vertex.h"
 
@@ -31,5 +32,7 @@ private:
 	GLuint eboId = 0;
 	GLuint vaoId = 0;
 };
+
+using MeshPtr = std::shared_ptr<Mesh>;
 
 #endif

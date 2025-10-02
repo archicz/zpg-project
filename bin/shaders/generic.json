@@ -1,0 +1,4 @@
+{
+	"vertexShader": "base://shaders/generic.vert",
+	"fragmentShader": "base://shaders/generic.frag"
+}

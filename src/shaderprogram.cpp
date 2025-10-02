@@ -2,35 +2,40 @@
 #include <sstream>
 #include <fstream>
 #include <plog/Log.h>
+#include <nlohmann/json.hpp>
 #include "shaderprogram.h"
+#include "assetmanager.h"
 
-ShaderProgram::ShaderProgram(ShaderPtr vtxShader, ShaderPtr fragShader):
-	vertexShader(std::move(vtxShader)), fragmentShader(std::move(fragShader))
+using nlohmann::json;
+
+ShaderProgram::ShaderProgram(ShaderPtr vertexShader, ShaderPtr fragmentShader)
 {
-	if (vertexShader->IsValid() && fragmentShader->IsValid())
+	if (!vertexShader->IsValid() || fragmentShader->IsValid())
 	{
-		programId = glCreateProgram();
-		glAttachShader(programId, vertexShader->shaderId);
-		glAttachShader(programId, fragmentShader->shaderId);
+		return;
+	}
 
-		glLinkProgram(programId);
-		glDetachShader(programId, vertexShader->shaderId);
-		glDetachShader(programId, fragmentShader->shaderId);
+	programId = glCreateProgram();
+	glAttachShader(programId, vertexShader->shaderId);
+	glAttachShader(programId, fragmentShader->shaderId);
 
-		GLint status;
-		glGetProgramiv(programId, GL_LINK_STATUS, &status);
+	glLinkProgram(programId);
+	glDetachShader(programId, vertexShader->shaderId);
+	glDetachShader(programId, fragmentShader->shaderId);
 
-		if (status == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &maxLength);
+	GLint status;
+	glGetProgramiv(programId, GL_LINK_STATUS, &status);
 
-			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(programId, maxLength, &maxLength, &infoLog[0]);
+	if (status == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &maxLength);
 
-			PLOGE << "Shader program link failed, " << std::string(infoLog.begin(), infoLog.end()) << '\n';
-			Destroy();
-		}
+		std::vector<GLchar> infoLog(maxLength);
+		glGetProgramInfoLog(programId, maxLength, &maxLength, &infoLog[0]);
+
+		PLOGE << "Shader program link failed, " << std::string(infoLog.begin(), infoLog.end()) << '\n';
+		Destroy();
 	}
 }
 
@@ -97,4 +102,78 @@ void ShaderProgram::Set(const std::string& name, const glm::mat4& mat)
 	{
 		glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, &mat[0][0]);
 	}
+}
+
+
+ShaderProgramAsset::ShaderProgramAsset(ShaderProgramPtr prg):
+	shaderProgram(prg)
+{
+}
+
+ShaderProgramAsset::~ShaderProgramAsset()
+{
+}
+
+ShaderProgramAssetLoader::~ShaderProgramAssetLoader()
+{
+}
+
+std::optional<std::shared_ptr<IAsset>> ShaderProgramAssetLoader::Load(const AssetURI& uri)
+{
+	PLOGV << "Loading shader program asset from URI '" << uri << "'";
+
+	auto& am = AssetManager::GetInstance();
+	auto path = am.ResolvePath(uri);
+	
+	if (!path.has_value())
+	{
+		return std::nullopt;
+	}
+
+	std::ifstream jsonData(path.value());
+
+	if (!jsonData)
+	{
+		PLOGE << "Can't open shader program recipe at '" << path.value() << "'";
+		return std::nullopt;
+	}
+
+	json programRecipe = json::parse(jsonData);
+	if (programRecipe.find("vertexShader") == programRecipe.end())
+	{
+		PLOGE << "Shader program recipe at '" << path.value() << "' is missing vertex shader URI";
+		return std::nullopt;
+	}
+
+	if (programRecipe.find("fragmentShader") == programRecipe.end())
+	{
+		PLOGE << "Shader program recipe at '" << path.value() << "' is missing fragment shader URI";
+		return std::nullopt;
+	}
+
+	AssetURI vertexShaderURI(programRecipe["vertexShader"]);
+	auto vtxShaderHandle = am.Require<VertexShaderAsset>(vertexShaderURI);
+	if (!vtxShaderHandle)
+	{
+		return std::nullopt;
+	}
+
+	AssetURI fragmentShaderURI(programRecipe["fragmentShader"]);
+	auto fragShaderHandle = am.Require<VertexShaderAsset>(fragmentShaderURI);
+	if (!fragShaderHandle)
+	{
+		return std::nullopt;
+	}
+
+	ShaderPtr vtxShader = am.Get<VertexShaderAsset>(vtxShaderHandle).value()->Get();
+	ShaderPtr fragShader = am.Get<VertexShaderAsset>(fragShaderHandle).value()->Get();
+
+	ShaderProgramPtr shaderProgram = std::make_shared<ShaderProgram>(vtxShader, fragShader);
+	if (!shaderProgram->IsValid())
+	{
+		return std::nullopt;
+	}
+
+	ShaderProgramAssetPtr shaderProgramAsset = std::make_shared<ShaderProgramAsset>(shaderProgram);
+	return std::dynamic_pointer_cast<IAsset>(shaderProgramAsset);
 }

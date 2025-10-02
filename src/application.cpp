@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <glad/glad.h>
 #include <plog/Log.h>
 #include <plog/Formatters/TxtFormatter.h>
@@ -8,6 +9,9 @@
 #include <backends/imgui_impl_sdl2.h>
 #include "application.h"
 #include "renderer.h"
+#include "assetmanager.h"
+#include "shader.h"
+#include "shaderprogram.h"
 
 Application::Application(const uint32_t _width, const uint32_t _height, const std::string& _title):
 	width(_width), height(_height), title(_title)
@@ -23,7 +27,7 @@ bool Application::Initialize()
 {
 	static plog::RollingFileAppender<plog::TxtFormatter> fileAppender("log.txt", 8000, 2);
 	static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
-	plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender);
+	plog::init(plog::verbose, &fileAppender).addAppender(&consoleAppender);
 
 	if (SDL_Init(SDL_INIT_EVERYTHING))
 	{
@@ -56,6 +60,13 @@ bool Application::Initialize()
 	PLOGI << "Vendor: " << glGetString(GL_VENDOR);
 	PLOGI << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+	AssetManager& am = AssetManager::GetInstance();
+	am.RegisterLoader<VertexShaderAssetLoader>();
+	am.RegisterLoader<FragmentShaderAssetLoader>();
+	am.RegisterLoader<ShaderProgramAssetLoader>();
+
+	am.Require<ShaderProgramAsset>(AssetURI("base://shaders/generic.json"));
+	
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 
@@ -96,8 +107,7 @@ void Application::Destroy()
 	running = false;
 
 	Renderer::GetInstance().Destroy();
-	Materials::GetInstance().Destroy();
-
+	
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
@@ -121,7 +131,7 @@ void Application::ProcessEvent(SDL_Event* ev)
 
 void Application::PreDraw()
 {
-	Renderer::GetInstance().Begin();
+	Renderer::GetInstance().PreDraw();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
@@ -134,10 +144,12 @@ void Application::Draw()
 
 void Application::PostDraw()
 {
+	glViewport(0, 0, width, height);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 
-	Renderer::GetInstance().End();
+	Renderer::GetInstance().PostDraw();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

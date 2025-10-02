@@ -2,7 +2,6 @@
 #define RENDERER_H
 #pragma once
 
-#include "materials.h"
 #include "mesh.h"
 
 class Renderer
@@ -23,8 +22,8 @@ public:
 	bool IsValid();
 protected:
 	void Destroy();
-	void Begin();
-	void End();
+	void PreDraw();
+	void PostDraw();
 };
 
 #endif

@@ -1,22 +1,22 @@
 #include "drawableobject.h"
 
-DrawableObject::DrawableObject(MaterialPtr mat, MeshPtr msh):
-	material(mat), mesh(msh)
-{
-}
+// DrawableObject::DrawableObject(MaterialPtr mat, MeshPtr msh):
+// 	material(mat), mesh(msh)
+// {
+// }
 
-DrawableObject::~DrawableObject()
-{
-}
+// DrawableObject::~DrawableObject()
+// {
+// }
 
-void DrawableObject::Draw()
-{
-	// shaderProgram->Use();
-	// shaderProgram->SetMat4("modelMat", modelMat.GetMat());
-	mesh->Draw();
-}
+// void DrawableObject::Draw()
+// {
+// 	// shaderProgram->Use();
+// 	// shaderProgram->SetMat4("modelMat", modelMat.GetMat());
+// 	mesh->Draw();
+// }
 
-Transform& DrawableObject::GetTransform()
-{
-	return modelMat;
-}
+// Transform& DrawableObject::GetTransform()
+// {
+// 	return modelMat;
+// }

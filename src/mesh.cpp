@@ -2,13 +2,17 @@
 #include "mesh.h"
 
 Mesh::Mesh(const std::vector<Vertex>& _vertices, const std::vector<GLuint>& _indices):
-	Mesh(_vertices)
+	vertices(std::move(_vertices)), indices(std::move(_indices))
 {
-	indices = std::move(indices);
+	glGenBuffers(1, &eboId);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &eboId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+
+	BuildVAO();
 }
 
 Mesh::Mesh(const std::vector<Vertex>& _vertices):
@@ -17,6 +21,8 @@ Mesh::Mesh(const std::vector<Vertex>& _vertices):
 	glGenBuffers(1, &vboId);
 	glBindBuffer(GL_ARRAY_BUFFER, vboId);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+	BuildVAO();
 }
 
 Mesh::~Mesh()
@@ -60,17 +66,19 @@ bool Mesh::IsValid() const
 
 void Mesh::Draw() const
 {
-	if (IsValid())
+	if (!IsValid())
 	{
-		glBindVertexArray(vaoId);
-
-		if (eboId != 0)
-		{
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-		}
-		else
-		{
-			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		}	
+		return;
 	}
+
+	glBindVertexArray(vaoId);
+
+	if (eboId != 0)
+	{
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}	
 }

@@ -24,13 +24,10 @@ void Renderer::Destroy()
 {
 }
 
-void Renderer::Begin()
+void Renderer::PreDraw()
 {
 }
 
-void Renderer::End()
+void Renderer::PostDraw()
 {
-	ImGui::Begin("test");
-		ImGui::Button("test button");
-	ImGui::End();
 }
