@@ -11,7 +11,7 @@ struct Vertex
 {
 	glm::vec3 coords;
 	glm::vec3 normal;
-	//glm::vec2 textureCoords;
+	glm::vec2 textureCoords;
 };
 
 struct VertexAttribute
@@ -25,8 +25,8 @@ struct VertexAttribute
 constexpr VertexAttribute VertexAttributes[] =
 {
 	VertexAttribute{ sizeof(float), 3, GL_FLOAT, GL_FALSE },	// Coords
-	VertexAttribute{ sizeof(float), 3, GL_FLOAT, GL_FALSE }		// Normal
-	// VertexAttribute{ sizeof(float), 2, GL_FLOAT, GL_FALSE } 
+	VertexAttribute{ sizeof(float), 3, GL_FLOAT, GL_FALSE },	// Normal
+	VertexAttribute{ sizeof(float), 2, GL_FLOAT, GL_FALSE } 	// Texture Coords
 };
 
 #endif

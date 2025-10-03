@@ -1,0 +1,7 @@
+{
+	"shaderProgram": "base://shaders/generic.json",
+	"params":
+	{
+		"color": "#ff0000"
+	}
+}

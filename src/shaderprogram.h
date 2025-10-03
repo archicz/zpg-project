@@ -23,7 +23,7 @@ public:
 public:
 	void Destroy();
 	bool IsValid() const;
-	bool Use();
+	bool Use() const;
 private:
 	GLint LookupUniform(const std::string& name);
 public:

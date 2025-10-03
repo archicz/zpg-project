@@ -89,6 +89,22 @@ public:
 	}
 
 	template <typename TAsset>
+	bool IsValid(AssetHandle<TAsset> assetHandle)
+	{
+		static_assert(std::is_base_of<IAsset, TAsset>::value, "TAsset is not based on IAsset");
+
+		auto rawHandle = assetHandle.RawHandle();
+		auto it = assets.find(rawHandle);
+
+		if (it == assets.end())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	template <typename TAsset>
 	std::optional<std::shared_ptr<TAsset>> Get(AssetHandle<TAsset> assetHandle)
 	{
 		static_assert(std::is_base_of<IAsset, TAsset>::value, "TAsset is not based on IAsset");

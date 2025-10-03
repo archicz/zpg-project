@@ -58,7 +58,7 @@ bool ShaderProgram::IsValid() const
 	return (programId != 0);
 }
 
-bool ShaderProgram::Use()
+bool ShaderProgram::Use() const
 {
 	if (IsValid())
 	{

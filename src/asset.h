@@ -15,9 +15,7 @@ enum class AssetType
 	VertexShader,
 	FragmentShader,
 	Material,
-	MaterialDefinition,
 	Texture,
-	Mesh,
 	Model,
 	Scene,
 	Max
@@ -30,9 +28,7 @@ inline std::vector<std::string> AssetTypeNames
 	"Vertex Shader",
 	"Fragment Shader",
 	"Material",
-	"Material Definition",
 	"Texture",
-	"Mesh",
 	"Model",
 	"Scene",
 	"Invalid"

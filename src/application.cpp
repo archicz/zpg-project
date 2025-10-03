@@ -12,8 +12,8 @@
 #include "assetmanager.h"
 #include "shader.h"
 #include "shaderprogram.h"
-#include "mesh.h"
-#include "models/sphere.h"
+#include "model.h"
+#include "material.h"
 
 Application::Application(const uint32_t _width, const uint32_t _height, const std::string& _title):
 	width(_width), height(_height), title(_title)
@@ -25,13 +25,11 @@ Application::~Application()
 	Destroy();
 }
 
-static std::shared_ptr<Mesh> sphereMesh;
-
 bool Application::Initialize()
 {
 	static plog::RollingFileAppender<plog::TxtFormatter> fileAppender("log.txt", 8000, 2);
 	static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
-	plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender);
+	plog::init(plog::verbose, &fileAppender).addAppender(&consoleAppender);
 
 	if (SDL_Init(SDL_INIT_EVERYTHING))
 	{
@@ -68,6 +66,10 @@ bool Application::Initialize()
 	am.RegisterLoader<VertexShaderAssetLoader>();
 	am.RegisterLoader<FragmentShaderAssetLoader>();
 	am.RegisterLoader<ShaderProgramAssetLoader>();
+	am.RegisterLoader<MaterialAssetLoader>();
+	am.RegisterLoader<ModelAssetLoader>();
+
+	am.Require<ModelAsset>(AssetURI("base://models/teapot.json"));
 	
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
@@ -79,10 +81,6 @@ bool Application::Initialize()
 
 	ImGui_ImplSDL2_InitForOpenGL(window, glContext);
 	ImGui_ImplOpenGL3_Init();
-	
-	const Vertex* sphereVtx = reinterpret_cast<const Vertex*>(sphere);
-	std::vector<Vertex> sphereVertices(sphereVtx, sphereVtx + 2880);
-	sphereMesh = std::make_shared<Mesh>(sphereVertices);
 
 	return true;
 }

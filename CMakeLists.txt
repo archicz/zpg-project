@@ -66,7 +66,9 @@ add_executable(zpg_project
 	src/application.cpp
 	src/shader.cpp
 	src/shaderprogram.cpp
+	src/material.cpp
 	src/mesh.cpp
+	src/model.cpp
 	src/asset.cpp
 	src/assetprovider.cpp
 	src/assetmanager.cpp

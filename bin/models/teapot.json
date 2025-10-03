@@ -1,0 +1,7 @@
+{
+	"mesh": "base://models/teapot.obj",
+	"materials":
+	{
+		"*": "base://materials/teapot.json"
+	}
+}
