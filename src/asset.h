@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <vector>
 
 enum class AssetType
 {
@@ -22,7 +23,29 @@ enum class AssetType
 	Max
 };
 
-std::ostream& operator<<(std::ostream& os, const AssetType& type);
+inline std::vector<std::string> AssetTypeNames
+{
+	"Unknown",
+	"Shader Program",
+	"Vertex Shader",
+	"Fragment Shader",
+	"Material",
+	"Material Definition",
+	"Texture",
+	"Mesh",
+	"Model",
+	"Scene",
+	"Invalid"
+};
+
+inline std::ostream& operator<<(std::ostream& os, const AssetType& type)
+{
+	auto val = static_cast<std::underlying_type<AssetType>::type>(type);
+	auto name = AssetTypeNames[val];
+	os << name;
+
+	return os;
+}
 
 class AssetURI
 {
@@ -65,8 +88,6 @@ struct AssetMetadata
 {
 	AssetType type = AssetType::Unknown;
 	AssetURI uri;
-	std::string resolvedPath;
-	// uint64_t lastModified = 0;
 };
 
 class IAsset

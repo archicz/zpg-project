@@ -68,29 +68,19 @@ std::optional<std::shared_ptr<IAsset>> VertexShaderAssetLoader::Load(const Asset
 	PLOGV << "Loading vertex shader asset from URI '" << uri << "'";
 
 	auto& am = AssetManager::GetInstance();
-	auto path = am.ResolvePath(uri);
-	
-	if (!path.has_value())
+	auto shaderSource = am.GetData(uri);
+	if (!shaderSource.has_value())
 	{
 		return std::nullopt;
 	}
 
-	std::ifstream vtxSourceFile(path.value());
-
-	if (!vtxSourceFile)
-	{
-		PLOGE << "Can't open vertex shader source at '" << path.value() << "'";
-		return std::nullopt;
-	}
-
-	std::stringstream vtxSource;
-	vtxSource << vtxSourceFile.rdbuf();
-
-	ShaderPtr shader = std::make_shared<Shader>(GL_VERTEX_SHADER, vtxSource.str());
+	ShaderPtr shader = std::make_shared<Shader>(GL_VERTEX_SHADER, (*shaderSource).str());
 	if (!shader->IsValid())
 	{
 		return std::nullopt;
 	}
+
+	PLOGV << "Vertex shader asset from URI '" << uri << "' OK";
 
 	VertexShaderAssetPtr shaderAsset = std::make_shared<VertexShaderAsset>(shader);
 	return std::dynamic_pointer_cast<IAsset>(shaderAsset);
@@ -110,34 +100,24 @@ FragmentShaderAssetLoader::~FragmentShaderAssetLoader()
 {
 }
 
-std::optional<std::shared_ptr<IAsset>> FragmentShaderAssetLoader::Load(const AssetURI &uri)
+std::optional<std::shared_ptr<IAsset>> FragmentShaderAssetLoader::Load(const AssetURI& uri)
 {
 	PLOGV << "Loading fragment shader asset from URI '" << uri << "'";
 
 	auto& am = AssetManager::GetInstance();
-	auto path = am.ResolvePath(uri);
-	
-	if (!path.has_value())
+	auto shaderSource = am.GetData(uri);
+	if (!shaderSource.has_value())
 	{
 		return std::nullopt;
 	}
 
-	std::ifstream frgSourceFile(path.value());
-
-	if (!frgSourceFile)
-	{
-		PLOGE << "Can't open fragment shader source at '" << path.value() << "'";
-		return std::nullopt;
-	}
-
-	std::stringstream frgSource;
-	frgSource << frgSourceFile.rdbuf();
-
-	ShaderPtr shader = std::make_shared<Shader>(GL_FRAGMENT_SHADER, frgSource.str());
+	ShaderPtr shader = std::make_shared<Shader>(GL_FRAGMENT_SHADER, (*shaderSource).str());
 	if (!shader->IsValid())
 	{
 		return std::nullopt;
 	}
+
+	PLOGV << "Fragment shader asset from URI '" << uri << "' OK";
 
 	FragmentShaderAssetPtr shaderAsset = std::make_shared<FragmentShaderAsset>(shader);
 	return std::dynamic_pointer_cast<IAsset>(shaderAsset);

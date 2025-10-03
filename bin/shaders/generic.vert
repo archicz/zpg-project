@@ -5,6 +5,6 @@ out vec4 fragPos;
 
 void main ()
 {
-	gl_Position = modelMat * vec4(vp, 1.0);
+	gl_Position = vec4(vp, 1.0);
 	fragPos = gl_Position;
 }

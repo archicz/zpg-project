@@ -9,7 +9,7 @@
 
 int main()
 {
-	Application* app = new Application(1024, 768, "ZPG");
+	Application* app = new Application(1280, 720, "ZPG");
 
 	if (!app->Initialize())
 	{

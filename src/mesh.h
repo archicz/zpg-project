@@ -7,10 +7,18 @@
 #include <glad/glad.h>
 #include "vertex.h"
 
+struct MeshPart
+{
+	size_t numIndices;
+	size_t baseIndex;
+	GLint baseVertex;
+};
+
 class Mesh
 {
 public:
 	Mesh() = delete;
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<MeshPart>& parts);
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 	Mesh(const std::vector<Vertex>& vertices);
 	~Mesh();
@@ -20,15 +28,16 @@ public:
 	Mesh(Mesh&& other) noexcept = delete;
 	Mesh& operator=(Mesh&& other) noexcept = delete;
 private:
+	void BuildVBO(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 	void BuildVAO();
 public:
 	void Destroy();
 	bool IsValid() const;
-	void Draw() const;
+public:
+	void DrawPart(size_t partIndex);
+	void DrawFull() const;
 private:
-	std::vector<Vertex> vertices;
-	std::vector<GLuint> indices;
-
+	std::vector<MeshPart> parts;
 	GLuint vboId = 0;
 	GLuint eboId = 0;
 	GLuint vaoId = 0;

@@ -10,7 +10,7 @@ using nlohmann::json;
 
 ShaderProgram::ShaderProgram(ShaderPtr vertexShader, ShaderPtr fragmentShader)
 {
-	if (!vertexShader->IsValid() || fragmentShader->IsValid())
+	if (!vertexShader->IsValid() || !fragmentShader->IsValid())
 	{
 		return;
 	}
@@ -123,31 +123,24 @@ std::optional<std::shared_ptr<IAsset>> ShaderProgramAssetLoader::Load(const Asse
 	PLOGV << "Loading shader program asset from URI '" << uri << "'";
 
 	auto& am = AssetManager::GetInstance();
-	auto path = am.ResolvePath(uri);
+	auto data = am.GetData(uri);
 	
-	if (!path.has_value())
+	if (!data.has_value())
 	{
 		return std::nullopt;
 	}
 
-	std::ifstream jsonData(path.value());
+	json programRecipe = json::parse(data.value());
 
-	if (!jsonData)
+	if (!programRecipe.contains("vertexShader"))
 	{
-		PLOGE << "Can't open shader program recipe at '" << path.value() << "'";
+		PLOGE << "Shader program recipe '" << uri << "' is missing vertex shader URI";
 		return std::nullopt;
 	}
 
-	json programRecipe = json::parse(jsonData);
-	if (programRecipe.find("vertexShader") == programRecipe.end())
+	if (!programRecipe.contains("fragmentShader"))
 	{
-		PLOGE << "Shader program recipe at '" << path.value() << "' is missing vertex shader URI";
-		return std::nullopt;
-	}
-
-	if (programRecipe.find("fragmentShader") == programRecipe.end())
-	{
-		PLOGE << "Shader program recipe at '" << path.value() << "' is missing fragment shader URI";
+		PLOGE << "Shader program recipe '" << uri << "' is missing fragment shader URI";
 		return std::nullopt;
 	}
 
@@ -159,20 +152,22 @@ std::optional<std::shared_ptr<IAsset>> ShaderProgramAssetLoader::Load(const Asse
 	}
 
 	AssetURI fragmentShaderURI(programRecipe["fragmentShader"]);
-	auto fragShaderHandle = am.Require<VertexShaderAsset>(fragmentShaderURI);
+	auto fragShaderHandle = am.Require<FragmentShaderAsset>(fragmentShaderURI);
 	if (!fragShaderHandle)
 	{
 		return std::nullopt;
 	}
 
 	ShaderPtr vtxShader = am.Get<VertexShaderAsset>(vtxShaderHandle).value()->Get();
-	ShaderPtr fragShader = am.Get<VertexShaderAsset>(fragShaderHandle).value()->Get();
+	ShaderPtr fragShader = am.Get<FragmentShaderAsset>(fragShaderHandle).value()->Get();
 
 	ShaderProgramPtr shaderProgram = std::make_shared<ShaderProgram>(vtxShader, fragShader);
 	if (!shaderProgram->IsValid())
 	{
 		return std::nullopt;
 	}
+
+	PLOGV << "Shader program asset from URI '" << uri << "' OK";
 
 	ShaderProgramAssetPtr shaderProgramAsset = std::make_shared<ShaderProgramAsset>(shaderProgram);
 	return std::dynamic_pointer_cast<IAsset>(shaderProgramAsset);

@@ -1,32 +1,53 @@
 #include <plog/Log.h>
 #include "mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex>& _vertices, const std::vector<GLuint>& _indices):
-	vertices(std::move(_vertices)), indices(std::move(_indices))
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<MeshPart>& _parts):
+	parts(_parts)
 {
-	glGenBuffers(1, &vboId);
-	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-	glGenBuffers(1, &eboId);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
+	BuildVBO(vertices, indices);
 	BuildVAO();
 }
 
-Mesh::Mesh(const std::vector<Vertex>& _vertices):
-	vertices(std::move(_vertices))
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
 {
-	glGenBuffers(1, &vboId);
-	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
+	BuildVBO(vertices, indices);
 	BuildVAO();
+
+	if (eboId != 0)
+	{
+		parts.push_back(MeshPart{ 0, indices.size(), 0 });
+	}
+	else
+	{
+		parts.push_back(MeshPart{ 0, vertices.size(), 0 });
+	}
+}
+
+Mesh::Mesh(const std::vector<Vertex>& vertices)
+{
+	BuildVBO(vertices, std::vector<GLuint>());
+	BuildVAO();
+
+	parts.push_back(MeshPart{ 0, vertices.size(), 0 });
 }
 
 Mesh::~Mesh()
 {
+	Destroy();
+}
+
+void Mesh::BuildVBO(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
+{
+	glGenBuffers(1, &vboId);
+	glBindBuffer(GL_ARRAY_BUFFER, vboId);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+	if (!indices.empty())
+	{
+		glGenBuffers(1, &eboId);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+	}
 }
 
 void Mesh::BuildVAO()
@@ -71,6 +92,10 @@ void Mesh::Destroy()
 			glDeleteBuffers(1, &eboId);
 		}
 	}
+
+	vboId = 0;
+	eboId = 0;
+	vaoId = 0;
 }
 
 bool Mesh::IsValid() const
@@ -78,7 +103,7 @@ bool Mesh::IsValid() const
 	return (vboId != 0 && vaoId != 0);
 }
 
-void Mesh::Draw() const
+void Mesh::DrawPart(size_t partIndex)
 {
 	if (!IsValid())
 	{
@@ -87,12 +112,66 @@ void Mesh::Draw() const
 
 	glBindVertexArray(vaoId);
 
+	try
+	{
+		auto part = parts.at(partIndex);
+
+		if (eboId != 0)
+		{
+			glDrawElementsBaseVertex(
+				GL_TRIANGLES,
+				part.numIndices,
+				GL_UNSIGNED_INT,
+				reinterpret_cast<const void*>(sizeof(GLuint) * part.baseIndex),
+				part.baseVertex
+			);
+		}
+		else
+		{
+			glDrawArrays(
+				GL_TRIANGLES,
+				part.baseIndex,
+				part.numIndices
+			);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		PLOGE << e.what();
+	}
+}
+
+void Mesh::DrawFull() const
+{
+	if (!IsValid())
+	{
+		return;
+	}
+
+    glBindVertexArray(vaoId);
+
 	if (eboId != 0)
 	{
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		for (const auto& part : parts)
+		{
+			glDrawElementsBaseVertex(
+				GL_TRIANGLES,
+				part.numIndices,
+				GL_UNSIGNED_INT,
+				reinterpret_cast<const void*>(sizeof(uint32_t) * part.baseIndex),
+				part.baseVertex
+			);
+		}
 	}
 	else
 	{
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-	}	
+		for (const auto& part : parts)
+		{
+			glDrawArrays(
+				GL_TRIANGLES,
+				part.baseIndex,
+				part.numIndices
+			);
+		}
+	}
 }

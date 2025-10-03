@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <optional>
 #include "asset.h"
+#include "assetprovider.h"
 
 class AssetManager
 {
@@ -53,8 +54,12 @@ private:
 		return typed;
 	}
 public:
-	void Mount(const std::string& scheme, const std::string& path);
-	std::optional<std::string> ResolvePath(const AssetURI& uri);
+	void Mount(const std::string& scheme, AssetProviderPtr provider);
+private:
+	std::optional<AssetProviderPtr> ResolveProvider(const AssetURI& uri);
+public:
+	std::optional<std::stringstream> GetData(const AssetURI& uri);
+	std::optional<AssetStat> GetStat(const AssetURI& uri);
 public:
 	template <typename TAsset>
 	AssetHandle<TAsset> Require(const AssetURI& uri)
@@ -79,13 +84,15 @@ public:
 			uriHandle[uri] = rawHandle;
 			handleUri[rawHandle] = uri;
 		}
-
+		
 		return assetHandle;
 	}
 
 	template <typename TAsset>
 	std::optional<std::shared_ptr<TAsset>> Get(AssetHandle<TAsset> assetHandle)
 	{
+		static_assert(std::is_base_of<IAsset, TAsset>::value, "TAsset is not based on IAsset");
+
 		auto rawHandle = assetHandle.RawHandle();
 		auto it = assets.find(rawHandle);
 
@@ -100,8 +107,8 @@ private:
 	std::unordered_map<AssetHandleRaw, AssetPtr> assets;
 	std::unordered_map<AssetURI, AssetHandleRaw> uriHandle;
 	std::unordered_map<AssetHandleRaw, AssetURI> handleUri;
-	std::unordered_map<std::string, std::string> mounts;
-	std::unordered_map<AssetType, AssetLoaderPtr> loaders; 
+	std::unordered_map<AssetType, AssetLoaderPtr> loaders;
+	std::unordered_map<std::string, AssetProviderPtr> providers;
 };
 
 #endif

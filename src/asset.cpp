@@ -1,10 +1,5 @@
+#include <vector>
 #include "asset.h"
-
-std::ostream& operator<<(std::ostream& os, const AssetType& type)
-{
-   os << static_cast<std::underlying_type<AssetType>::type>(type);
-   return os;
-}
 
 AssetURI::AssetURI():
 	scheme(), path()

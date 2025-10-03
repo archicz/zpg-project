@@ -3,7 +3,7 @@
 
 AssetManager::AssetManager()
 {
-	Mount("base", "");
+	Mount("base", std::make_shared<FileAssetProvider>());
 }
 
 AssetManager::~AssetManager()
@@ -33,12 +33,6 @@ std::optional<std::shared_ptr<IAsset>> AssetManager::Load(const AssetURI& uri, c
 		return std::nullopt;
 	}
 
-	auto resolvedPath = ResolvePath(uri);
-	if (!resolvedPath.has_value())
-	{
-		return std::nullopt;
-	}
-
 	auto loader = it->second;
 	auto asset = loader->Load(uri);
 
@@ -50,26 +44,50 @@ std::optional<std::shared_ptr<IAsset>> AssetManager::Load(const AssetURI& uri, c
     auto assetPtr = asset.value();
     assetPtr->meta.type = type;
     assetPtr->meta.uri  = uri;
-    assetPtr->meta.resolvedPath = resolvedPath.value_or("");
 	
 	return assetPtr;
 }
 
-void AssetManager::Mount(const std::string& scheme, const std::string& path)
+void AssetManager::Mount(const std::string& scheme, AssetProviderPtr provider)
 {
-	mounts[scheme] = path;
+	PLOGV << "Mounting asset provider for schema '" << scheme << "'";
+	providers[scheme] = provider;
 }
 
-std::optional<std::string> AssetManager::ResolvePath(const AssetURI& uri)
+std::optional<AssetProviderPtr> AssetManager::ResolveProvider(const AssetURI& uri)
 {
 	auto scheme = uri.GetScheme();
-	auto it = mounts.find(scheme);
-	if (it == mounts.end())
+	auto it = providers.find(scheme);
+
+	if (it == providers.end())
 	{
-		PLOGE << "Could not resolve path from URI '" << uri << "'";
+		PLOGE << "No provider found for scheme '" << scheme << "' in URI '" << uri << "'";
 		return std::nullopt;
 	}
 
-	auto schemeRoot = it->second;
-	return (schemeRoot.empty() ? "" : (schemeRoot + "/")) + uri.GetPath();
+	return it->second;
+}
+
+std::optional<std::stringstream> AssetManager::GetData(const AssetURI& uri)
+{
+	auto provider = ResolveProvider(uri);
+	
+	if (!provider.has_value())
+	{
+		return std::nullopt;
+	}
+
+	return (*provider)->GetData(uri);
+}
+
+std::optional<AssetStat> AssetManager::GetStat(const AssetURI& uri)
+{
+	auto provider = ResolveProvider(uri);
+	
+	if (!provider.has_value())
+	{
+		return std::nullopt;
+	}
+
+	return (*provider)->GetStat(uri);
 }
